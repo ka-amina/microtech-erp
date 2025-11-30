@@ -17,9 +17,9 @@ public class UserService {
     private final UserMapper userMapper;
 
     public AuthResponseDTO register(RegisterRequestDTO req) {
-//        if (userRepository.existsByEmail(req.getEmail())) {
-//            throw new DuplicateResourceException("user already exists");
-//        }
+        if (userRepository.existsByEmail(req.getEmail())) {
+            throw new DuplicateResourceException("user already exists");
+        }
         User user = userMapper.toEntity(req);
         user.setPassword(hashPassword(req.getPassword()));
 

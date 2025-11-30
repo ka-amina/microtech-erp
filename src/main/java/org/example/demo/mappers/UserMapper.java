@@ -21,8 +21,8 @@ public class UserMapper {
         res.setId(user.getId());
         res.setUserName(user.getUserName());
         res.setEmail(user.getEmail());
-        res.setEmail(user.getEmail());
         res.setRole(user.getRole());
+        res.setMessage(message);
         return res;
     }
 }
