@@ -1,9 +1,12 @@
 package org.example.demo.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.demo.dto.request.LoginRequestDTO;
 import org.example.demo.dto.request.RegisterRequestDTO;
 import org.example.demo.dto.response.AuthResponseDTO;
 import org.example.demo.exception.DuplicateResourceException;
+import org.example.demo.exception.ResourceNotFoundException;
+import org.example.demo.exception.UnauthorizedException;
 import org.example.demo.mappers.UserMapper;
 import org.example.demo.model.User;
 import org.example.demo.repository.UserRepository;
@@ -27,16 +30,21 @@ public class UserService {
         return userMapper.toAuthResponse(savedUser, "user registred successfully");
     }
 
+    public  AuthResponseDTO login(LoginRequestDTO req) {
+        User user=  userRepository.findByEmail(req.getEmail()).orElseThrow(() -> new ResourceNotFoundException(" user not found"));
+        if (!checkPaswword(req.getPassword(), user.getPassword())) {
+            throw new UnauthorizedException(" invallid credentials");
+        }
+        return userMapper.toAuthResponse(user, "user login successfully");
+    }
+
     public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
-//    public boolean checkPaswword(String password,String checkedPassword) {
-//        return BCrypt.checkpw(password, checkedPassword);
-//    }
+    public boolean checkPaswword(String password, String checkedPassword) {
+        return BCrypt.checkpw(password, checkedPassword);
+    }
 
 
-//    public AuthResponseDTO login(User user, String message) {
-//
-//    }
 }

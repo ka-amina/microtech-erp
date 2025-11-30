@@ -1,6 +1,8 @@
 package org.example.demo.controller;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.example.demo.dto.request.LoginRequestDTO;
 import org.example.demo.dto.request.RegisterRequestDTO;
 import org.example.demo.dto.response.AuthResponseDTO;
 import org.example.demo.service.UserService;
@@ -19,6 +21,15 @@ public class AuthController {
     @PostMapping("register")
     public ResponseEntity<AuthResponseDTO> register(@RequestBody RegisterRequestDTO req){
         AuthResponseDTO res= userService.register(req);
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO req, HttpSession session){
+        AuthResponseDTO res= userService.login(req);
+        session.setAttribute("userId", res.getId());
+        session.setAttribute("userRole", res.getRole());
+        System.out.println( session.getAttribute("userRole"));
         return ResponseEntity.ok(res);
     }
 }
