@@ -32,4 +32,9 @@ public class AuthController {
         System.out.println( session.getAttribute("userRole"));
         return ResponseEntity.ok(res);
     }
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpSession session){
+    session.invalidate();
+    return ResponseEntity.ok("logged out successfully");
+    }
 }
