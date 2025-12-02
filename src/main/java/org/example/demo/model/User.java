@@ -7,7 +7,7 @@ import org.example.demo.enums.UserRole;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name= "users")
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,17 +15,17 @@ import java.time.LocalDateTime;
 @Builder
 public class User {
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String  userName;
+    private String userName;
 
-    @Column(nullable=false)
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable=false)
+    @Column(nullable = false)
     private UserRole role;
 
     @Builder.Default
