@@ -46,5 +46,10 @@ public class UserService {
         return BCrypt.checkpw(password, checkedPassword);
     }
 
+    public AuthResponseDTO getUserById(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("user not found"));
+        return userMapper.toAuthResponse(user, "user details fetched successfully");
+    }
+
 
 }
