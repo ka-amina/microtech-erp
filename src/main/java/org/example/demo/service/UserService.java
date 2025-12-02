@@ -20,7 +20,7 @@ public class UserService {
     private final UserMapper userMapper;
 
     public AuthResponseDTO register(RegisterRequestDTO req) {
-        if (userRepository.existsByEmail(req.getEmail())) {
+        if (userRepository.existsByUserName(req.getUserName())) {
             throw new DuplicateResourceException("user already exists");
         }
         User user = userMapper.toEntity(req);
@@ -31,7 +31,7 @@ public class UserService {
     }
 
     public  AuthResponseDTO login(LoginRequestDTO req) {
-        User user=  userRepository.findByEmail(req.getEmail()).orElseThrow(() -> new ResourceNotFoundException(" user not found"));
+        User user=  userRepository.findByUserName(req.getUserName()).orElseThrow(() -> new ResourceNotFoundException(" user not found"));
         if (!checkPaswword(req.getPassword(), user.getPassword())) {
             throw new UnauthorizedException(" invallid credentials");
         }
