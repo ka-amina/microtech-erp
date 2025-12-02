@@ -9,6 +9,9 @@ import org.example.demo.model.Client;
 import org.example.demo.repository.ClientRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class ClientService {
@@ -23,5 +26,11 @@ public class ClientService {
         Client client = clientMapper.toEntity(req);
         Client savedClient = clientRepository.save(client);
         return clientMapper.toResponse(savedClient);
+    }
+
+    public List<ClientResponseDTO> getAllClients() {
+        return clientRepository.findAll().stream()
+                .map(clientMapper::toResponse)
+                .collect(Collectors.toList());
     }
 }

@@ -5,10 +5,9 @@ import org.example.demo.dto.request.ClientRequestDTO;
 import org.example.demo.dto.response.ClientResponseDTO;
 import org.example.demo.service.ClientService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,4 +20,11 @@ public class ClientController {
         ClientResponseDTO clientResponseDTO = clientService.createClient(req);
         return ResponseEntity.ok(clientResponseDTO);
     }
+
+    @GetMapping
+    public ResponseEntity<List<ClientResponseDTO>> getAllClients() {
+        List<ClientResponseDTO> clients = clientService.getAllClients();
+        return ResponseEntity.ok(clients);
+    }
+
 }
