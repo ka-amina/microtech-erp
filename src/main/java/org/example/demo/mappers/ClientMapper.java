@@ -30,6 +30,7 @@ public class ClientMapper {
         res.setTotalSpent(client.getTotalSpent());
         res.setFistOrderDate(client.getFirstOrderDate());
         res.setLastOrderDate(client.getLastOrderDate());
+        res.setIsActive(client.getIsActive());
         return res;
     }
 

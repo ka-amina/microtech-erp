@@ -40,4 +40,10 @@ public class ClientController {
         return ResponseEntity.ok(client);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ClientResponseDTO> deleteClient(@PathVariable Long id) {
+        ClientResponseDTO client = clientService.deleteClient(id);
+        return ResponseEntity.ok(client);
+    }
+
 }

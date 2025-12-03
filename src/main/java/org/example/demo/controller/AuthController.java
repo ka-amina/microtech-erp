@@ -6,7 +6,6 @@ import org.example.demo.dto.request.LoginRequestDTO;
 import org.example.demo.dto.request.RegisterRequestDTO;
 import org.example.demo.dto.response.AuthResponseDTO;
 import org.example.demo.exception.UnauthorizedException;
-import org.example.demo.model.User;
 import org.example.demo.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

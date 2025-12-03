@@ -17,5 +17,5 @@ public class ClientResponseDTO {
     private Double totalSpent;
     private LocalDateTime fistOrderDate;
     private LocalDateTime lastOrderDate;
-
+    private Boolean isActive;
 }

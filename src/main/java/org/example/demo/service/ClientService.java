@@ -54,4 +54,12 @@ public class ClientService {
         Client updatedClient = clientRepository.save(client);
         return clientMapper.toResponse(updatedClient);
     }
+
+    public ClientResponseDTO deleteClient(Long id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Client Not found with id" + id));
+        client.setIsActive(false);
+        clientRepository.save(client);
+        return clientMapper.toResponse(client);
+    }
 }
