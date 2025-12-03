@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.demo.dto.request.ClientRequestDTO;
 import org.example.demo.dto.response.ClientResponseDTO;
 import org.example.demo.exception.DuplicateResourceException;
+import org.example.demo.exception.ResourceNotFoundException;
 import org.example.demo.mappers.ClientMapper;
 import org.example.demo.model.Client;
 import org.example.demo.repository.ClientRepository;
@@ -32,5 +33,11 @@ public class ClientService {
         return clientRepository.findAll().stream()
                 .map(clientMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    public ClientResponseDTO getClientById(Long id) {
+        return clientRepository.findById(id)
+                .map(clientMapper::toResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("Client with id " + id + " not found"));
     }
 }
