@@ -50,4 +50,7 @@ public class Client {
     private LocalDateTime firstOrderDate;
 
     private LocalDateTime lastOrderDate;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private java.util.List<Order> orders;
 }
