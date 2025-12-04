@@ -2,6 +2,7 @@ package org.example.demo.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.demo.dto.request.ProductRequestDTO;
+import org.example.demo.dto.request.ProductRequestUpdateDTO;
 import org.example.demo.dto.response.ProductResponseDTO;
 import org.example.demo.service.ProductService;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,12 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {
         ProductResponseDTO product = productService.getProductById(id);
+        return ResponseEntity.ok(product);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id,@RequestBody ProductRequestUpdateDTO req) {
+        ProductResponseDTO product = productService.updateProduct(id, req);
         return ResponseEntity.ok(product);
     }
 }

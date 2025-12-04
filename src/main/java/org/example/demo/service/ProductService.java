@@ -42,4 +42,19 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
     }
 
+    public ProductResponseDTO updateProduct(Long id, ProductRequestUpdateDTO req) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
+
+        if (req.getName() != null && !req.getName().equals(product.getName())) {
+            if (productRepository.existsByName(req.getName())) {
+                throw new DuplicateResourceException("Product with name '" + req.getName() + "' already exists");
+            }
+        }
+
+        productMapper.updateEntity(product, req);
+        Product updatedProduct = productRepository.save(product);
+        return productMapper.toResponse(updatedProduct);
+    }
+
 }
