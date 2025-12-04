@@ -7,7 +7,6 @@ import org.example.demo.enums.UserRole;
 public class AuthResponseDTO {
     private Long id;
     private String userName;
-    private String email;
     private UserRole role;
     private String message;
 }

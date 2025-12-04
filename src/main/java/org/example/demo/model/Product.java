@@ -2,33 +2,35 @@ package org.example.demo.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.demo.enums.UserRole;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "users")
+@Table(name= "products")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class Product {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String userName;
+    private String name;
 
     @Column(nullable = false)
-    private String password;
+    private String description;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserRole role;
+    private BigDecimal unitPrice;
+
+    
+    @Column(nullable = false)
+    private Integer stockQuantity;
 
     @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-
+    private Boolean isDeleted = false;
 }
