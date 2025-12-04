@@ -11,7 +11,6 @@ public class UserMapper {
     public User toEntity(RegisterRequestDTO req) {
         return User.builder()
                 .userName(req.getUserName())
-                .email(req.getEmail())
                 .role(req.getRole())
                 .build();
     }
@@ -20,9 +19,9 @@ public class UserMapper {
         AuthResponseDTO res= new AuthResponseDTO();
         res.setId(user.getId());
         res.setUserName(user.getUserName());
-        res.setEmail(user.getEmail());
         res.setRole(user.getRole());
         res.setMessage(message);
         return res;
     }
 }
+
