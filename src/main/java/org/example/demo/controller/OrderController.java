@@ -33,4 +33,10 @@ public class OrderController {
         OrderResponseDTO orderResponseDTO = orderService.rejectOrder(orderId);
         return ResponseEntity.ok(orderResponseDTO);
     }
+
+    @PatchMapping("/{orderId}/confirm")
+    public ResponseEntity<OrderResponseDTO> confirmOrder(@PathVariable Long orderId) {
+        OrderResponseDTO orderResponseDTO = orderService.confirmOrder(orderId);
+        return ResponseEntity.ok(orderResponseDTO);
+    }
 }

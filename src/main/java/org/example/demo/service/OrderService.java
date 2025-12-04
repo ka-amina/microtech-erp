@@ -186,6 +186,38 @@ public class OrderService {
         return orderMapper.toResponse(savedOrder);
     }
 
+    @Transactional
+    public OrderResponseDTO confirmOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order with id " + orderId + " not found"));
+
+        // Validate order status
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new OrderStatusException("Cannot confirm order. Only PENDING orders can be confirmed. Current status: " + order.getStatus());
+        }
+
+        // Update order status
+        order.setStatus(OrderStatus.CONFIRMED);
+        Order savedOrder = orderRepository.save(order);
+
+        // Update client statistics
+        Client client = order.getClient();
+        client.setTotalOrders(client.getTotalOrders() + 1);
+        client.setTotalSpent(client.getTotalSpent() + order.getTotal().doubleValue());
+        
+        // Update first order date if this is the first order
+        if (client.getFirstOrderDate() == null) {
+            client.setFirstOrderDate(order.getOrderDate());
+        }
+        
+        // Update last order date
+        client.setLastOrderDate(order.getOrderDate());
+        
+        clientRepository.save(client);
+        
+        return orderMapper.toResponse(savedOrder);
+    }
+
 //    validate promo code
     private boolean isValidPromoCode(String promoCode) {
         if (promoCode == null || promoCode.isEmpty()) {
