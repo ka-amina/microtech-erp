@@ -25,6 +25,7 @@ public class ProductMapper {
         res.setDescription(product.getDescription());
         res.setUnitPrice(product.getUnitPrice());
         res.setStockQuantity(product.getStockQuantity());
+        res.setDeleted(product.getIsDeleted());
         return res;
     }
 

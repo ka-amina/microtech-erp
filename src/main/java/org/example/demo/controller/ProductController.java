@@ -3,6 +3,7 @@ package org.example.demo.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.demo.dto.request.ProductRequestDTO;
 import org.example.demo.dto.request.ProductRequestUpdateDTO;
+import org.example.demo.dto.response.ClientResponseDTO;
 import org.example.demo.dto.response.ProductResponseDTO;
 import org.example.demo.service.ProductService;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,12 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id,@RequestBody ProductRequestUpdateDTO req) {
         ProductResponseDTO product = productService.updateProduct(id, req);
+        return ResponseEntity.ok(product);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ProductResponseDTO> deleteProduct(@PathVariable Long id) {
+        ProductResponseDTO product = productService.deleteProduct(id);
         return ResponseEntity.ok(product);
     }
 }

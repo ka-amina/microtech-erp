@@ -51,10 +51,17 @@ public class ProductService {
                 throw new DuplicateResourceException("Product with name '" + req.getName() + "' already exists");
             }
         }
-
         productMapper.updateEntity(product, req);
         Product updatedProduct = productRepository.save(product);
         return productMapper.toResponse(updatedProduct);
+    }
+
+    public ProductResponseDTO deleteProduct(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
+        product.setIsDeleted(true);
+        productRepository.save(product);
+        return productMapper.toResponse(product);
     }
 
 }
