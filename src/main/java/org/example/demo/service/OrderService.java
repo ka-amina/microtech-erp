@@ -100,8 +100,16 @@ public class OrderService {
         order.setOrderItems(orderItems);
         order.setSubtotal(subtotal.setScale(2, RoundingMode.HALF_UP));
 
-        // For now, discount is 0 (will be implemented later with fidelity system)
+        // Calculate promo code discount (5% if valid)
         BigDecimal discount = BigDecimal.ZERO;
+        if (req.getPromoCode() != null && !req.getPromoCode().isEmpty()) {
+            if (isValidPromoCode(req.getPromoCode())) {
+                discount = subtotal.multiply(new BigDecimal("0.05")).setScale(2, RoundingMode.HALF_UP);
+            } else {
+                throw new InvalidOrderException("Invalid promo code format. Must be PROMO-XXXX");
+            }
+        }
+        
         order.setDiscount(discount);
 
         // Calculate amounts
@@ -124,6 +132,14 @@ public class OrderService {
         // Save order
         Order savedOrder = orderRepository.save(order);
         return orderMapper.toResponse(savedOrder);
+    }
+
+//    validate promo code
+    private boolean isValidPromoCode(String promoCode) {
+        if (promoCode == null || promoCode.isEmpty()) {
+            return false;
+        }
+        return promoCode.matches("PROMO-[A-Z0-9]{4}");
     }
 
 }
