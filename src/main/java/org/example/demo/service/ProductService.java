@@ -36,4 +36,10 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    public ProductResponseDTO getProductById(Long id) {
+        return productRepository.findById(id)
+                .map(productMapper::toResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id + " not found"));
+    }
+
 }
