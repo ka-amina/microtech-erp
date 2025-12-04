@@ -2,6 +2,7 @@ package org.example.demo.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.demo.dto.request.ClientRequestDTO;
+import org.example.demo.dto.request.ClientRequestUpdateDTO;
 import org.example.demo.dto.response.ClientResponseDTO;
 import org.example.demo.service.ClientService;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,24 @@ public class ClientController {
     public ResponseEntity<List<ClientResponseDTO>> getAllClients() {
         List<ClientResponseDTO> clients = clientService.getAllClients();
         return ResponseEntity.ok(clients);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ClientResponseDTO> getClientById(@PathVariable Long id) {
+        ClientResponseDTO client = clientService.getClientById(id);
+        return ResponseEntity.ok(client);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ClientResponseDTO> updateClient(@PathVariable Long id, @RequestBody ClientRequestUpdateDTO req) {
+        ClientResponseDTO client = clientService.updateClient(id, req);
+        return ResponseEntity.ok(client);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ClientResponseDTO> deleteClient(@PathVariable Long id) {
+        ClientResponseDTO client = clientService.deleteClient(id);
+        return ResponseEntity.ok(client);
     }
 
 }
