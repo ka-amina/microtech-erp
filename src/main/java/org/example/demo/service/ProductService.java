@@ -9,10 +9,9 @@ import org.example.demo.exception.ResourceNotFoundException;
 import org.example.demo.mappers.ProductMapper;
 import org.example.demo.model.Product;
 import org.example.demo.repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,10 +29,9 @@ public class ProductService {
         return productMapper.toResponse(savedProduct);
     }
 
-    public List<ProductResponseDTO> getAllProducts() {
-        return productRepository.findAll().stream()
-                .map(productMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<ProductResponseDTO> getAllProducts(Pageable pageable) {
+        Page<Product> productPage = productRepository.findByIsDeletedFalse(pageable);
+        return productPage.map(productMapper::toResponse);
     }
 
     public ProductResponseDTO getProductById(Long id) {
