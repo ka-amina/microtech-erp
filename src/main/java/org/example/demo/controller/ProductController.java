@@ -1,0 +1,32 @@
+package org.example.demo.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.example.demo.dto.request.ProductRequestDTO;
+import org.example.demo.dto.response.ProductResponseDTO;
+import org.example.demo.service.ProductService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("api/products")
+public class ProductController {
+
+    private final ProductService productService;
+
+    @PostMapping
+    public ResponseEntity<ProductResponseDTO> createProduct( @RequestBody ProductRequestDTO req) {
+        ProductResponseDTO productResponseDTO = productService.createProduct(req);
+        return ResponseEntity.ok(productResponseDTO);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
+        List<ProductResponseDTO> products = productService.getAllProducts();
+        return ResponseEntity.ok(products);
+    }
+
+
+}
