@@ -6,6 +6,7 @@ import org.example.demo.dto.response.OrderResponseDTO;
 import org.example.demo.enums.OrderStatus;
 import org.example.demo.exception.InsufficientStockException;
 import org.example.demo.exception.InvalidOrderException;
+import org.example.demo.exception.OrderStatusException;
 import org.example.demo.exception.ResourceNotFoundException;
 import org.example.demo.mappers.OrderMapper;
 import org.example.demo.model.*;
@@ -131,6 +132,57 @@ public class OrderService {
 
         // Save order
         Order savedOrder = orderRepository.save(order);
+        return orderMapper.toResponse(savedOrder);
+    }
+
+
+
+    @Transactional
+    public OrderResponseDTO cancelOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order with id " + orderId + " not found"));
+
+        // Validate order status - only PENDING orders can be canceled
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new OrderStatusException("Cannot cancel order. Only PENDING orders can be canceled. Current status: " + order.getStatus());
+        }
+
+        // Restore product stock
+        for (OrderItem item : order.getOrderItems()) {
+            Product product = item.getProduct();
+            product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
+            productRepository.save(product);
+        }
+
+        // Update order status
+        order.setStatus(OrderStatus.CANCELED);
+        Order savedOrder = orderRepository.save(order);
+        
+        return orderMapper.toResponse(savedOrder);
+    }
+
+
+    @Transactional
+    public OrderResponseDTO rejectOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order with id " + orderId + " not found"));
+
+        // Validate order status - only PENDING orders can be rejected
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new OrderStatusException("Cannot reject order. Only PENDING orders can be rejected. Current status: " + order.getStatus());
+        }
+
+        // Restore product stock
+        for (OrderItem item : order.getOrderItems()) {
+            Product product = item.getProduct();
+            product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
+            productRepository.save(product);
+        }
+
+        // Update order status
+        order.setStatus(OrderStatus.REJECTED);
+        Order savedOrder = orderRepository.save(order);
+        
         return orderMapper.toResponse(savedOrder);
     }
 
