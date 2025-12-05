@@ -2,11 +2,13 @@ package org.example.demo.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.demo.dto.request.PaymentRequestDTO;
+import org.example.demo.dto.request.PaymentStatusUpdateDTO;
 import org.example.demo.dto.response.PaymentResponseDTO;
 import org.example.demo.enums.OrderStatus;
 import org.example.demo.enums.PaymentStatus;
 import org.example.demo.enums.PaymentType;
 import org.example.demo.exception.InvalidOrderException;
+import org.example.demo.exception.InvalidPaymentStatusException;
 import org.example.demo.exception.OrderStatusException;
 import org.example.demo.exception.ResourceNotFoundException;
 import org.example.demo.mappers.PaymentMapper;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -48,12 +51,12 @@ public class PaymentService {
         }
 
         // Validate ESPECES limit
-        if (req.getPaymentType() == PaymentType.ESPECES && req.getAmount().compareTo(CASH_LIMIT) > 0) {
+        if (req.getPaymentType() == PaymentType.CASH && req.getAmount().compareTo(CASH_LIMIT) > 0) {
             throw new InvalidOrderException("Cash payment exceeds legal limit of 20,000 DH (Article 193 CGI)");
         }
 
         // Validate CHEQUE requirements
-        if (req.getPaymentType() == PaymentType.CHEQUE) {
+        if (req.getPaymentType() == PaymentType.CHECK) {
             if (req.getBankName() == null || req.getBankName().isEmpty()) {
                 throw new InvalidOrderException("Bank name is required for CHEQUE payments");
             }
@@ -63,7 +66,7 @@ public class PaymentService {
         }
 
         // Validate VIREMENT requirements
-        if (req.getPaymentType() == PaymentType.VIREMENT) {
+        if (req.getPaymentType() == PaymentType.TRANSFER) {
             if (req.getBankName() == null || req.getBankName().isEmpty()) {
                 throw new InvalidOrderException("Bank name is required for VIREMENT payments");
             }
@@ -75,10 +78,10 @@ public class PaymentService {
 
         // Determine payment status
         PaymentStatus status;
-        if (req.getPaymentType() == PaymentType.ESPECES) {
-            status = PaymentStatus.ENCAISSE; // Cash is immediately cashed
+        if (req.getPaymentType() == PaymentType.CASH) {
+            status = PaymentStatus.CASHED;
         } else {
-            status = PaymentStatus.EN_ATTENTE; // CHEQUE and VIREMENT start as pending
+            status = PaymentStatus.PENDING;
         }
 
         // Create payment
@@ -92,7 +95,7 @@ public class PaymentService {
                 .reference(req.getReference())
                 .bankName(req.getBankName())
                 .dueDate(req.getDueDate())
-                .cashDate(status == PaymentStatus.ENCAISSE ? java.time.LocalDate.now() : null)
+                .cashDate(status == PaymentStatus.CASHED ? java.time.LocalDate.now() : null)
                 .build();
 
         // Update order remaining amount
@@ -106,6 +109,51 @@ public class PaymentService {
         // Map to response
         PaymentResponseDTO response = paymentMapper.toResponse(savedPayment);
         response.setRemainingAmount(newRemainingAmount);
+
+        return response;
+    }
+
+    @Transactional
+    public PaymentResponseDTO updatePaymentStatus(Long paymentId, PaymentStatusUpdateDTO req) {
+        // Find payment
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment with id " + paymentId + " not found"));
+
+        // Validate payment type
+        if (payment.getPaymentType() == PaymentType.CASH) {
+            throw new InvalidPaymentStatusException("Cannot update status of ESPECES payment. Cash payments are automatically ENCAISSE.");
+        }
+
+        // Validate current status
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            throw new InvalidPaymentStatusException("Cannot update payment status. Only PENDING payments can be updated. Current status: " + payment.getStatus());
+        }
+
+        // Validate new status
+        if (req.getStatus() == PaymentStatus.PENDING) {
+            throw new InvalidPaymentStatusException("Invalid status transition. Payment is already EN_ATTENTE.");
+        }
+
+        // Update payment status
+        payment.setStatus(req.getStatus());
+
+        if (req.getStatus() == PaymentStatus.CASHED) {
+            LocalDate cashDate = req.getCashDate() != null ? req.getCashDate() : LocalDate.now();
+            payment.setCashDate(cashDate);
+        } else if (req.getStatus() == PaymentStatus.REJECTED) {
+            // If payment is rejected, add the amount back to the order's remaining amount
+            Order order = payment.getOrder();
+            BigDecimal newRemainingAmount = order.getRemainingAmount().add(payment.getAmount()).setScale(2, RoundingMode.HALF_UP);
+            order.setRemainingAmount(newRemainingAmount);
+            orderRepository.save(order);
+        }
+
+        // Save updated payment
+        Payment updatedPayment = paymentRepository.save(payment);
+
+        // Map to response
+        PaymentResponseDTO response = paymentMapper.toResponse(updatedPayment);
+        response.setRemainingAmount(updatedPayment.getOrder().getRemainingAmount());
 
         return response;
     }
