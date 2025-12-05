@@ -101,20 +101,25 @@ public class OrderService {
         order.setOrderItems(orderItems);
         order.setSubtotal(subtotal.setScale(2, RoundingMode.HALF_UP));
 
+        // Calculate loyalty discount based on client's current tier
+        BigDecimal loyaltyDiscount = calculateLoyaltyDiscount(client, subtotal);
+        
         // Calculate promo code discount (5% if valid)
-        BigDecimal discount = BigDecimal.ZERO;
+        BigDecimal promoDiscount = BigDecimal.ZERO;
         if (req.getPromoCode() != null && !req.getPromoCode().isEmpty()) {
             if (isValidPromoCode(req.getPromoCode())) {
-                discount = subtotal.multiply(new BigDecimal("0.05")).setScale(2, RoundingMode.HALF_UP);
+                promoDiscount = subtotal.multiply(new BigDecimal("0.05")).setScale(2, RoundingMode.HALF_UP);
             } else {
                 throw new InvalidOrderException("Invalid promo code format. Must be PROMO-XXXX");
             }
         }
         
-        order.setDiscount(discount);
+        // Cumulative discounts (loyalty + promo)
+        BigDecimal totalDiscount = loyaltyDiscount.add(promoDiscount).setScale(2, RoundingMode.HALF_UP);
+        order.setDiscount(totalDiscount);
 
         // Calculate amounts
-        BigDecimal subtotalAfterDiscount = subtotal.subtract(discount).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal subtotalAfterDiscount = subtotal.subtract(totalDiscount).setScale(2, RoundingMode.HALF_UP);
         BigDecimal vat = subtotalAfterDiscount.multiply(vatRate).setScale(2, RoundingMode.HALF_UP);
         BigDecimal total = subtotalAfterDiscount.add(vat).setScale(2, RoundingMode.HALF_UP);
 
@@ -213,9 +218,56 @@ public class OrderService {
         // Update last order date
         client.setLastOrderDate(order.getOrderDate());
         
+        // Recalculate and update client tier based on new statistics
+        updateClientTier(client);
+        
         clientRepository.save(client);
         
         return orderMapper.toResponse(savedOrder);
+    }
+
+
+    private BigDecimal calculateLoyaltyDiscount(Client client, BigDecimal subtotal) {
+        BigDecimal discount = BigDecimal.ZERO;
+        
+        switch (client.getFidelityLevel()) {
+            case SILVER:
+                if (subtotal.compareTo(new BigDecimal("500")) >= 0) {
+                    discount = subtotal.multiply(new BigDecimal("0.05"));
+                }
+                break;
+            case GOLD:
+                if (subtotal.compareTo(new BigDecimal("800")) >= 0) {
+                    discount = subtotal.multiply(new BigDecimal("0.10"));
+                }
+                break;
+            case PLATINUM:
+                if (subtotal.compareTo(new BigDecimal("1200")) >= 0) {
+                    discount = subtotal.multiply(new BigDecimal("0.15"));
+                }
+                break;
+            case BASIC:
+            default:
+                discount = BigDecimal.ZERO;
+                break;
+        }
+        
+        return discount.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private void updateClientTier(Client client) {
+        int totalOrders = client.getTotalOrders();
+        double totalSpent = client.getTotalSpent();
+        
+        if (totalOrders >= 20 || totalSpent >= 15000) {
+            client.setFidelityLevel(org.example.demo.enums.CustomerTier.PLATINUM);
+        } else if (totalOrders >= 10 || totalSpent >= 5000) {
+            client.setFidelityLevel(org.example.demo.enums.CustomerTier.GOLD);
+        } else if (totalOrders >= 3 || totalSpent >= 1000) {
+            client.setFidelityLevel(org.example.demo.enums.CustomerTier.SILVER);
+        } else {
+            client.setFidelityLevel(org.example.demo.enums.CustomerTier.BASIC);
+        }
     }
 
 //    validate promo code
