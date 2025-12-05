@@ -226,6 +226,18 @@ public class OrderService {
         return orderMapper.toResponse(savedOrder);
     }
 
+    // Get all orders for a specific client
+    public List<OrderResponseDTO> getOrdersByClient(Long clientId) {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Client with id " + clientId + " not found"));
+        
+        List<Order> orders = orderRepository.findByClientOrderByOrderDateDesc(client);
+        
+        return orders.stream()
+                .map(orderMapper::toResponse)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
 
     private BigDecimal calculateLoyaltyDiscount(Client client, BigDecimal subtotal) {
         BigDecimal discount = BigDecimal.ZERO;
