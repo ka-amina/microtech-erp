@@ -8,6 +8,8 @@ import org.example.demo.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -38,5 +40,11 @@ public class OrderController {
     public ResponseEntity<OrderResponseDTO> confirmOrder(@PathVariable Long orderId) {
         OrderResponseDTO orderResponseDTO = orderService.confirmOrder(orderId);
         return ResponseEntity.ok(orderResponseDTO);
+    }
+
+    @GetMapping("/client/{clientId}")
+    public ResponseEntity<List<OrderResponseDTO>> getOrdersByClient(@PathVariable Long clientId) {
+        List<OrderResponseDTO> orders = orderService.getOrdersByClient(clientId);
+        return ResponseEntity.ok(orders);
     }
 }
