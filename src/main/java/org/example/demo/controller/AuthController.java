@@ -30,8 +30,7 @@ public class AuthController {
     public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO req, HttpSession session) {
         AuthResponseDTO res = userService.login(req);
         session.setAttribute("userId", res.getId());
-        session.setAttribute("userRole", res.getRole());
-        System.out.println(session.getAttribute("userRole"));
+        session.setAttribute("userRole", res.getRole().name()); // Store as String
         return ResponseEntity.ok(res);
     }
 
@@ -44,7 +43,7 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<AuthResponseDTO> getCurrentUser(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
-        if(userId == null) {
+        if (userId == null) {
             throw new UnauthorizedException("You are not logged in");
         }
         AuthResponseDTO res = userService.getUserById(userId);

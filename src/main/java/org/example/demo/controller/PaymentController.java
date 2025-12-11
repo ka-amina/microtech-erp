@@ -2,6 +2,7 @@ package org.example.demo.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.demo.aop.RequiresAdmin;
 import org.example.demo.dto.request.PaymentRequestDTO;
 import org.example.demo.dto.request.PaymentStatusUpdateDTO;
 import org.example.demo.dto.response.PaymentResponseDTO;
@@ -17,6 +18,7 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/{orderId}/payments")
+    @RequiresAdmin
     public ResponseEntity<PaymentResponseDTO> addPayment(
             @PathVariable Long orderId,
             @Valid @RequestBody PaymentRequestDTO req) {
@@ -25,6 +27,7 @@ public class PaymentController {
     }
 
     @PatchMapping("/payments/{paymentId}/status")
+    @RequiresAdmin
     public ResponseEntity<PaymentResponseDTO> updatePaymentStatus(
             @PathVariable Long paymentId,
             @Valid @RequestBody PaymentStatusUpdateDTO req) {

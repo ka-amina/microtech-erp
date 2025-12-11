@@ -1,6 +1,8 @@
 package org.example.demo.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.demo.aop.RequiresAdmin;
+import org.example.demo.aop.RequiresClient;
 import org.example.demo.dto.request.ClientRequestDTO;
 import org.example.demo.dto.request.ClientRequestUpdateDTO;
 import org.example.demo.dto.response.ClientResponseDTO;
@@ -17,12 +19,14 @@ public class ClientController {
     private final ClientService clientService;
 
     @PostMapping
+    @RequiresAdmin
     public ResponseEntity<ClientResponseDTO> createClient(@RequestBody ClientRequestDTO req) {
         ClientResponseDTO clientResponseDTO = clientService.createClient(req);
         return ResponseEntity.ok(clientResponseDTO);
     }
 
     @GetMapping
+    @RequiresAdmin
     public ResponseEntity<List<ClientResponseDTO>> getAllClients() {
         List<ClientResponseDTO> clients = clientService.getAllClients();
         return ResponseEntity.ok(clients);
@@ -41,6 +45,7 @@ public class ClientController {
     }
 
     @DeleteMapping("/{id}")
+    @RequiresAdmin
     public ResponseEntity<ClientResponseDTO> deleteClient(@PathVariable Long id) {
         ClientResponseDTO client = clientService.deleteClient(id);
         return ResponseEntity.ok(client);

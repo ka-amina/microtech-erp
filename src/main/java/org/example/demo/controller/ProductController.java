@@ -1,6 +1,7 @@
 package org.example.demo.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.demo.aop.RequiresAdmin;
 import org.example.demo.dto.request.ProductRequestDTO;
 import org.example.demo.dto.request.ProductRequestUpdateDTO;
 import org.example.demo.dto.response.ProductResponseDTO;
@@ -20,6 +21,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
+    @RequiresAdmin
     public ResponseEntity<ProductResponseDTO> createProduct( @RequestBody ProductRequestDTO req) {
         ProductResponseDTO productResponseDTO = productService.createProduct(req);
         return ResponseEntity.ok(productResponseDTO);
@@ -38,18 +40,21 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
+    @RequiresAdmin
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable Long id) {
         ProductResponseDTO product = productService.getProductById(id);
         return ResponseEntity.ok(product);
     }
 
     @PutMapping("/{id}")
+    @RequiresAdmin
     public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id,@RequestBody ProductRequestUpdateDTO req) {
         ProductResponseDTO product = productService.updateProduct(id, req);
         return ResponseEntity.ok(product);
     }
 
     @DeleteMapping("/{id}")
+    @RequiresAdmin
     public ResponseEntity<ProductResponseDTO> deleteProduct(@PathVariable Long id) {
         ProductResponseDTO product = productService.deleteProduct(id);
         return ResponseEntity.ok(product);
